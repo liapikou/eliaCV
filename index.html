@@ -36,6 +36,20 @@
   .cap{font-size:11.5px;font-weight:500;letter-spacing:.16em;text-transform:uppercase;color:var(--ink-3)}
   .hanko{display:inline-grid;place-items:center;width:30px;height:30px;background:var(--shu);color:#fff;font-family:var(--mincho);font-weight:700;font-size:15px;border-radius:3px;line-height:1}
 
+  /* tate: vertical writing, as in the Ukemi trainer */
+  .namerow{display:flex;align-items:flex-start;gap:clamp(24px,4vw,56px)}
+  .tate{display:flex;flex-direction:column;align-items:center;gap:16px;color:var(--ink);padding-top:clamp(18px,2vw,30px)}
+  .tate span{writing-mode:vertical-rl;font-family:var(--mincho);font-size:clamp(34px,3.4vw,46px);font-weight:500;letter-spacing:.34em;line-height:1}
+  .tate i{display:block;width:1px;height:64px;background:var(--shu);transform-origin:top}
+  .tate small{writing-mode:vertical-rl;font-size:12px;letter-spacing:.24em;color:var(--ink-3)}
+  .hero .tate.go i{animation:rule-in .9s .9s cubic-bezier(.3,.7,.2,1) both}
+  @keyframes rule-in{from{transform:scaleY(0)}to{transform:scaleY(1)}}
+  .tate-c{display:inline-flex;margin-bottom:26px;padding-top:0}
+  .tate-c span{font-size:40px}
+  .tate-c i{height:48px}
+  .brand .kj{font-family:var(--mincho);font-weight:500;font-size:21px;line-height:1;padding-right:12px;border-right:1px solid var(--shu)}
+  @media(max-width:760px){.tate small{display:none}.tate i{height:40px}}
+
   /* nav */
   header{position:fixed;inset:0 0 auto 0;z-index:50;transition:background .5s var(--ease),border-color .5s}
   header .bar{max-width:1120px;margin:0 auto;padding:0 32px;height:60px;display:flex;align-items:center;justify-content:space-between}
@@ -432,7 +446,7 @@ const SITE = {
     { wide: true, kicker: "2025 – present · Independent research", title: "Ukemi Sound Trainer",
       text: "Real-time pose estimation with auditory feedback for ukemi training, aimed at fall prevention in older adults. A browser-based system (MediaPipe) sonifies ushiro ukemi, the judo backward breakfall, where the critical variable is an interval of tens of milliseconds between arm slap and back contact. Seven sonification modes.",
       tags: ["Sonification", "Pose estimation", "Motor learning", "Fall prevention"],
-      link: { label: "Open prototype", href: "https://liapikou.github.io/the_ukemi_trainer/" },
+      link: { label: "Open prototype", href: "https://liapikou.github.io/ukemi_trainer_1.0/" },
       outputs: [
         { type: "Invited talk · 2026", title: "Hear the fall, learn the technique", venue: "Tokai University, Japan", href: "#tokai" },
         { type: "Paper · 2025", title: "Ushiro Ukemi Mastery for Safe Aging: Real-Time Auditory Feedback System to Improve Fall Control in Older Adults", venue: "E. Liapikou, P. R. Kantan · 8th Applicable Research in Judo, Proceedings Book, pp. 141–144 · University of Zagreb", href: "https://www.eju.net/wp-content/uploads/2025/11/8TH-CONFERENCE-APPLICABLE-RESEARCH-IN-JUDO-PROCEEDINGS.pdf" },
@@ -472,7 +486,7 @@ const SITE = {
 
   // Ομιλίες που δεν ανήκουν σε κάποιο project
   speaking: [
-    { type: "Panel moderator · Nov 2026", title: "Exploring Noise Reduction", venue: "Danish Sound Day 2026 · Danish Sound Cluster, DTU Skylab" },
+    { type: "Panel moderator · Nov 2026", title: "Exploring Noise Reduction", venue: "Danish Sound Day 2026 · Danish Sound Cluster, DTU Skylab · with Oticon, Augmented Hearing and HARMAN", href: "https://danishsoundcluster.dk/danish-sound-day-2026/" },
   ],
 
   skills: {
@@ -532,7 +546,7 @@ const SITE = {
 
 <header id="hdr">
   <div class="bar">
-    <a href="#top" class="brand"><span class="hanko">理</span><span id="brand"></span></a>
+    <a href="#top" class="brand"><span class="kj" lang="ja">理</span><span id="brand"></span></a>
     <nav class="links">
       <a href="#about">About</a>
       <a href="#tokai" class="hl">Tokai 2026</a>
@@ -551,7 +565,7 @@ const SITE = {
     <div class="sun" id="sun"></div>
     <div class="inner">
       <div class="cap fade"><i></i><span id="loc"></span></div>
-      <h1 class="split" id="h1"></h1>
+      <div class="namerow"><h1 class="split" id="h1"></h1><div class="tate fade" aria-hidden="true"><span lang="ja">理</span><i></i></div></div>
       <div class="role fade" id="role"></div>
       <p class="lede fade" id="lede"></p>
       <div class="cta fade">
@@ -656,7 +670,7 @@ const SITE = {
 
   <section id="contact" class="contact">
     <div class="reveal">
-      <span class="hanko">理</span>
+      <div class="tate tate-c" aria-hidden="true"><span lang="ja">理</span><i></i></div>
       <div class="cap">Contact</div>
       <h2 style="margin-top:14px">Get in touch.</h2>
       <p id="contactText"></p>
@@ -771,7 +785,10 @@ requestAnimationFrame(() => setTimeout(() => {
   document.querySelectorAll(".hero .fade").forEach((el, i) => { el.style.transitionDelay = (500 + i * 110) + "ms"; el.classList.add("go"); });
 }, 60));
 
-const io = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) { e.target.classList.add("in"); io.unobserve(e.target); countUp(e.target); } }), { threshold: .12, rootMargin: "0px 0px -6% 0px" });
+const io = new IntersectionObserver(es => es.forEach(e => {
+  if (e.isIntersecting) { if (!e.target.classList.contains("in")) { e.target.classList.add("in"); countUp(e.target); } }
+  else e.target.classList.remove("in"); // leave the viewport: reset, so it animates again on the way back
+}), { threshold: .08, rootMargin: "0px 0px -4% 0px" });
 document.querySelectorAll(".reveal").forEach(el => io.observe(el));
 
 function countUp(el) {
